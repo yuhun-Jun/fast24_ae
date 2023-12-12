@@ -38,6 +38,7 @@ Upon completion, the modified kernel and NVMeVirt will be downloaded into their 
 
 Before building the kernel, ensure the following packages are installed:
 ```bash
+apt-get update
 apt-get install build-essential libncurses5 libncurses5-dev bin86 kernel-package libssl-dev bison flex libelf-dev dwarves
 ```
 Configure the kernel:
@@ -45,12 +46,16 @@ Configure the kernel:
 cd kernel
 make olddefconfig
 ```
-[이곳 확인해야함]
-Modify the `.config` file to address any certification issues (verification needed in a clean state). Remove any problematic text related to debian~cert from the file.
+To modify the `.config` file for building, replace the values of CONFIG_SYSTEM_TRUSTED_KEYS and CONFIG_SYSTEM_REVOCATION_KEYS with an empty string (""). This can be found near line 10477.
+
+```bash
+CONFIG_SYSTEM_TRUSTED_KEYS=""
+CONFIG_SYSTEM_REVOCATION_KEYS=""
+```
 
 Build the kernel:
 ```bash
-make -j LOCALVERSION=
+make -j$(nproc) LOCALVERSION=
 sudo make INSTALL_MOD_STRIP=1 modules_install  
 make install
 ```
