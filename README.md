@@ -110,7 +110,25 @@ Execute the script below to perform hypothetical workloads, including append and
 ./hypothetical_overwrite.sh
 ```
 
-[todo]
+### SQLite Workload
+SQLite operates within programs written in C. To use SQLite, install the library with the command below.
+```bash
+apt-get install libsqlite3-dev
+```
+The execution of the workload is performed by running the following script.
+```bash
+./sqlite.sh
+```
+
+### fileserver workload
+Download, build, and install Filebench. For detailed instructions on the installation of Filebench, refer to the official Filebench GitHub page:
+[Filebench GitHub Repository](https://github.com/filebench/filebench)
+
+Execute the script below once Filebench is installed.
+```bash
+./fileserver.sh
+./fileserver_small.sh
+```
 
 ## 6. Results
 *Details about evaluating and interpreting results.*
