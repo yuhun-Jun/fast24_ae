@@ -2,6 +2,7 @@
 # FAST ’24 Artifacts Evaluation
 
 ## Title: We Ain't Afraid of No File Fragmentation: Cause and Prevention of Its Performance Impact on Modern Flash SSDs
+contact: yuhun Jun (yuhun@skku.edu)
 
 ## Contents
 - [1. Constraints](#1-constraints)
@@ -75,6 +76,13 @@ cd nvmevirt
 After the build, `nvmev_on.ko` and `nvmev_off.ko` will be copied to the evaluation directory.
 
 ## 5. Conducting Evaluation
+The experimental operation requires superuser privileges as it uses `fdisk` and `insmod`.
+
+To gain superuser access, enter the following command:
+
+```bash
+sudo su
+```
 
 Reserve memory for the emulated NVMe device's storage by modifying `/etc/default/grub`:
 ```bash
@@ -88,7 +96,25 @@ sudo update-grub
 sudo reboot
 ```
 
+NVMeVrit operates at high speeds in memory, which can lead to performance differences across NUMA nodes. Therefore, all tests specify a NUMA node using `numactl`. Install `numactl` with the following command:
+```bash
+apt install numactl
+```
+
+**Caution!!!!!:** NVMeVirt creates a new NVMe device, which is assigned a number following the last NVMe device in the system. To determine this, use the `lsblk` command to check the number of the last NVMe device in the system. Then, update the `DATA_NAME` in the `commonvariable.sh` file to the next number. Additionally, an extra device is required for operating with an external journal, so modify the `JOURNAL_NAME` accordingly. The current settings are based on using `nvme4` and `sdb`.
+
+### Hypothetical Workload
+Execute the script below to perform hypothetical workloads, including append and overwrite tasks.
+```bash
+./hypothetical_append.sh
+./hypothetical_overwrite.sh
+```
+
 [todo]
 
 ## 6. Results
 *Details about evaluating and interpreting results.*
+Once the evaluation is complete, you can check the results all at once with the following command inside the evaluation directory.
+```bash
+./printresult.sh
+```
