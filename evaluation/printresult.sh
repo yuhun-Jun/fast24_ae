@@ -16,6 +16,13 @@ sc0=$(tail -n 1 result/sqlite_contiguous.txt | grep -o 'time: [0-9.]\+' | awk '{
 sa0=$(tail -n 1 result/sqlite_append_off.txt | grep -o 'time: [0-9.]\+' | awk '{print 156.25 / $NF}')
 sa1=$(tail -n 1 result/sqlite_append_on.txt | grep -o 'time: [0-9.]\+' | awk '{print 156.25 / $NF}')
 
+fc0=$(tail -n 2 result/fileserver_contiguous.txt | grep -o 'rd/wr [0-9.]\+' | awk '{print $NF}')
+fa0=$(tail -n 2 result/fileserver_off.txt | grep -o 'rd/wr [0-9.]\+' | awk '{print $NF}')
+fa1=$(tail -n 2 result/fileserver_on.txt | grep -o 'rd/wr [0-9.]\+' | awk '{print $NF}')
+
+fsc0=$(tail -n 2 result/fileserver_small_contiguous.txt | grep -o 'rd/wr [0-9.]\+' | awk '{print $NF}')
+fsa0=$(tail -n 2 result/fileserver_small_off.txt | grep -o 'rd/wr [0-9.]\+' | awk '{print $NF}')
+fsa1=$(tail -n 2 result/fileserver_small_on.txt | grep -o 'rd/wr [0-9.]\+' | awk '{print $NF}')
 
 # 결과 출력
 echo " ==== Hypothetical Workload ==== "
@@ -27,10 +34,10 @@ echo "Append Worst with Approach: $aw1 MB/s"
 echo "Append Random without Approach: $ar0 MB/s"
 echo "Append Random with Approach: $ar1 MB/s"
 echo " "
-echo "Overwrite Worst w/o Approach: $ow0 MB/s"
-echo "Overwrite Worst w Approach: $ow1 MB/s"
-echo "Overwrite Random w/o Approach: $or0 MB/s"
-echo "Overwrite Random w Approach: $or1 MB/s"
+echo "Overwrite Worst without Approach: $ow0 MB/s"
+echo "Overwrite Worst with Approach: $ow1 MB/s"
+echo "Overwrite Random without Approach: $or0 MB/s"
+echo "Overwrite Random with Approach: $or1 MB/s"
 echo " "
 echo " ==== sqlite Workload ==== "
 echo " "
