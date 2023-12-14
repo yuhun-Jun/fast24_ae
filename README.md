@@ -131,8 +131,42 @@ Execute the script below once Filebench is installed.
 ```
 
 ## 6. Results
-*Details about evaluating and interpreting results.*
 Once the evaluation is complete, you can check the results all at once with the following command inside the evaluation directory.
 ```bash
 ./printresult.sh
+```
+
+Below is an example of completing all experiments in our system and printing the result.
+```bash
+ ==== Hypothetical Workload ==== 
+ 
+Contiguous file: 2224.29 MB/s
+ 
+Append Worst without Approach: 396.931 MB/s
+Append Worst with Approach: 2109.36 MB/s
+Append Random without Approach: 1474.33 MB/s
+Append Random with Approach: 2047.84 MB/s
+ 
+Overwrite Worst w/o Approach: 401.102 MB/s
+Overwrite Worst w Approach: 2090.14 MB/s
+Overwrite Random w/o Approach: 1498 MB/s
+Overwrite Random w Approach: 2117.4 MB/s
+ 
+ ==== sqlite Workload ==== 
+ 
+sqlite contiguous : 879.921 MB/s
+sqlite Append without Approach: 531.488 MB/s
+sqlite Append with Approach: 849.93 MB/s
+ 
+ ==== fileserver Workload ==== 
+ 
+fileserver contiguous : 2738.4 MB/s
+fileserver Append without Approach: 2103.8 MB/s
+fileserver Append with Approach: 2708.4 MB/s
+ 
+ ==== fileserver-small Workload ==== 
+ 
+fileserver-small contiguous : 2794.8 MB/s
+fileserver-small Append without Approach: 1796.0 MB/s
+fileserver-small Append with Approach: 2092.2 MB/s
 ```
