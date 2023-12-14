@@ -24,7 +24,7 @@ The experimental environment requires the following specifications:
 | Memory        | DDR4 2666 MHz, 512 GB (32 GB x16)  |
 | OS            | Ubuntu 20.04 Server (kernel v5.15.0)|
 
-**Note:** NVMeVirt operates in DRAM and is sensitive to performance. It is recommended to use an environment with at least 128 GB of free space in a single NUMA node. As NVMeVirt requires a modified kernel, please follow the steps in this document sequentially.
+**Note:** NVMeVirt functions in DRAM and is performance-sensitive. For optimal performance, a setup with at least 128 GB of free space in a single NUMA node is recommended. Since NVMeVirt necessitates a modified kernel, ensure to follow this guide in the order presented.
 
 This guide is based on a clean installation of Ubuntu 20.04 server.
 
@@ -53,7 +53,7 @@ cd kernel
 make olddefconfig
 ```
 
-To modify the `.config` file for building, replace the values of CONFIG_SYSTEM_TRUSTED_KEYS and CONFIG_SYSTEM_REVOCATION_KEYS with an empty string (""). This can be found near line 10477.
+For building, modify the `.config` file by setting `CONFIG_SYSTEM_TRUSTED_KEYS` and `CONFIG_SYSTEM_REVOCATION_KEYS` to empty strings (""). These settings are typically located around line 10477.
 
 ```bash
 CONFIG_SYSTEM_TRUSTED_KEYS=""
@@ -102,7 +102,7 @@ Reserve memory for the emulated NVMe device's storage by modifying `/etc/default
 GRUB_CMDLINE_LINUX="memmap=128G\\\$256G intremap=off"
 ```
 
-This reserves 128 GiB of physical memory starting at the 256 GiB offset. Adjust these values based on your physical memory size and storage capacity.
+This configuration reserves 128 GiB of physical memory starting at the 256 GiB offset. Tailor these values to match your system's physical memory size and storage capacity.
 
 Update grub and reboot:
 
@@ -130,7 +130,7 @@ Check the NUMA node's memory layout and corresponding CPUs:
 numactl -H
 ```
 
-**Caution!!!:** Incorrect configuration can damage the system.
+**Caution!!!:** Improper configuration may cause system damage.
 NVMeVirt creates a new NVMe device, which is assigned a number following the last NVMe device in the system. To determine this, use the `lsblk` command to check the number of the last NVMe device in the system. Then, update the `DATA_NAME` in the `commonvariable.sh` file to the next number. Additionally, an extra device is required for operating with an external journal, so modify the `JOURNAL_NAME` accordingly. The current settings are based on using `nvme4` and `sdb`.
 
 SQLite operates within programs written in C. To use SQLite, install the library with the command below.
@@ -218,7 +218,7 @@ fileserver-small Append with Approach: 2099.3 MB/s
 
 ## 7. Adaptation for Systems with Limited Resources
 
-The experiments typically use 128 GB of memory and emulate a 60 GB SSD. Here are modifications for systems with less memory, e.g., 16 GB to emulate a 10 GB SSD, assuming a single NUMA node system with 32 GB memory.
+Standard experiments use 128 GB of memory to emulate a 60 GB SSD. For systems with less memory, such as 16 GB for emulating a 10 GB SSD (assuming a single NUMA node system with 32 GB of memory), the following modifications are necessary.
 
 1. Reserve memory for the emulated NVMe device's storage by modifying `/etc/default/grub`:
 
