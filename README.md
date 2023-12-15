@@ -11,8 +11,9 @@ Contact: Yuhun Jun (yuhun@skku.edu)
 - [4. NVMeVirt Build](#4-nvmevirt-build)
 - [5. Conducting Evaluation](#5-conducting-evaluation)
 - [6. Results](#6-results)
+<!--
 - [7. Adaptation for Systems with Limited Resources](#7-adaptation-for-systems-with-limited-resources)
-
+-->
 ## 1. Constraints
 
 The experimental environment requires the following specifications:
@@ -215,7 +216,7 @@ fileserver-small contiguous : 2776.3 MB/s
 fileserver-small Append without Approach: 1721.0 MB/s
 fileserver-small Append with Approach: 2099.3 MB/s
 ```
-
+<!--
 ## 7. Adaptation for Systems with Limited Resources
 
 Standard experiments use 128 GB of memory to emulate a 60 GB SSD. For systems with less memory, such as 16 GB for emulating a 10 GB SSD (assuming a single NUMA node system with 32 GB of memory), the following modifications are necessary.
@@ -223,7 +224,7 @@ Standard experiments use 128 GB of memory to emulate a 60 GB SSD. For systems wi
 1. Reserve memory for the emulated NVMe device's storage by modifying `/etc/default/grub`:
 
 ```bash
-GRUB_CMDLINE_LINUX="memmap=16G\\\\$16G intremap=off”
+GRUB_CMDLINE_LINUX="memmap=16G\\\$16G intremap=off”
 ```
 
 2. Modify NVMeVirt start scripts:
@@ -246,3 +247,4 @@ Remove “numactl --cpubind=2 --membind=2” from each test script:
 ```bash
 find . -type f -exec sed -i 's/numactl --cpubind=2 --membind=2 //g' {} +
 ```
+-->
