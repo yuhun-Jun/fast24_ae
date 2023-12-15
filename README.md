@@ -27,6 +27,8 @@ The experimental environment requires the following specifications:
 
 **Note:** NVMeVirt functions in DRAM and is performance-sensitive. For optimal performance, a setup with at least 128 GB of free space in a single NUMA node is recommended. Since NVMeVirt necessitates a modified kernel, ensure to follow this guide in the order presented.
 
+A storage device is required for storing external journals. This should be configured in `commonvariable.sh` in [Section 5](#5-conducting-evaluation).
+
 This guide is based on a clean installation of Ubuntu 20.04 server.
 
 ## 2. Getting Started Instructions
@@ -118,7 +120,7 @@ NVMeVrit operates at high speeds in memory, which can lead to performance differ
 apt install numactl
 ```
 
-For accuracy, allocate CPUs in the same NUMA node as the reserved memory to NVMeVirt. Modify memmap_start, memmap_size, and cpus in nvmevstart_on.sh and nvmevstart_off.sh accordingly. Here's the default nvmevstart_on.sh script:
+For accuracy, allocate CPUs in the same NUMA node as the reserved memory to NVMeVirt. Modify `memmap_start`, `memmap_size`, and `cpus` in `nvmevstart_on.sh` and `nvmevstart_off.sh` accordingly. Here's the default nvmevstart_on.sh script:
 
 ```bash
 insmod ./nvmev_on.ko memmap_start=256G memmap_size=60G cpus=131,132,135,136
@@ -152,7 +154,7 @@ Execute the script below to perform hypothetical workloads, including append and
 ./hypothetical_overwrite.sh
 ```
 
-Results will be saved in the `result` directory, starting with "append" and "overwrite". Report results as described in Section 6.
+Results will be saved in the `result` directory, starting with "append" and "overwrite". Report results as described in [Section 6](#6-results).
 
 ### SQLite Workload
 
@@ -162,7 +164,7 @@ The execution of the workload is performed by running the following script.
 ./sqlite.sh
 ```
 
-Results will be in the `result` directory, starting with "sqlite". Report results as outlined in Section 6.
+Results will be in the `result` directory, starting with "sqlite". Report results as outlined in [Section 6](#6-results).
 
 ### fileserver workload
 
@@ -173,7 +175,7 @@ Execute the script below once Filebench is installed.
 ./fileserver_small.sh
 ```
 
-Results will be in the `result` directory, starting with "fileserver". Report results as explained in Section 6.
+Results will be in the `result` directory, starting with "fileserver". Report results as explained in [Section 6](#6-results).
 ## 6. Results
 Once the evaluation is complete, you can check the results all at once with the following command inside the evaluation directory.
 
