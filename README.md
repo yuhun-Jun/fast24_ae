@@ -148,6 +148,7 @@ For Filebench experiments, download, build, and install Filebench from the offic
 ### Hypothetical Workload
 
 Execute the script below to perform hypothetical workloads, including append and overwrite tasks.
+This experiment took about 8 minutes per script, totaling approximately 16 minutes.
 
 ```bash
 ./hypothetical_append.sh
@@ -159,6 +160,7 @@ Results will be saved in the `result` directory, starting with "append" and "ove
 ### SQLite Workload
 
 The execution of the workload is performed by running the following script.
+This experiment took about 22 minutes in our system.
 
 ```bash
 ./sqlite.sh
@@ -169,6 +171,7 @@ Results will be in the `result` directory, starting with "sqlite". Report result
 ### fileserver workload
 
 Execute the script below once Filebench is installed.
+This experiment took about 45 minutes per script, totaling approximately 90 minutes.
 
 ```bash
 ./fileserver.sh
@@ -176,6 +179,12 @@ Execute the script below once Filebench is installed.
 ```
 
 Results will be in the `result` directory, starting with "fileserver". Report results as explained in [Section 6](#6-results).
+
+Of course, all the above tests can be integrated into a single script below and executed at once.
+```bash
+runall.sh
+```
+
 ## 6. Results
 Once the evaluation is complete, you can check the results all at once with the following command inside the evaluation directory.
 
