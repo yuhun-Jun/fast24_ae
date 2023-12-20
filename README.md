@@ -18,7 +18,7 @@ The experimental environment requires the following specifications:
 
 | **Component** | **Specification**                  |
 |---------------|------------------------------------|
-| Processor     | Intel Xeon Gold 6138 2.0 GHz, 20-Core |
+| Processor     | Intel Xeon Gold 6138 2.0 GHz, 160-Core |
 | Chipset       | Intel C621                         |
 | Memory        | DDR4 2666 MHz, 512 GB (32 GB x16)  |
 | OS            | Ubuntu 20.04 Server (kernel v5.15.0)|
@@ -40,6 +40,7 @@ git clone https://github.com/yuhun-Jun/fast24_ae.git
 Retrieve the necessary code from GitHub by executing the script below:
 
 ```bash
+cd fast24_ae
 ./cloneall.sh
 ```
 
@@ -169,13 +170,13 @@ lsblk
 **Caution!!!:** Improper configuration may cause system damage.
 NVMeVirt creates a new NVMe device, which is assigned a number following the last NVMe device in the system. To determine this, use the `lsblk` command to check the number of the last NVMe device in the system. Then, update the `DATA_NAME` in the `commonvariable.sh` file to the next number. Additionally, an extra device is required for operating with an external journal, so modify the `JOURNAL_NAME` accordingly. The current settings are based on using `nvme4` and `sdb`.
 
-SQLite operates within programs written in C. To use SQLite, install the library with the command below.
+**SQLite** operates within programs written in C. To use SQLite, install the library with the command below.
 
 ```bash
 apt-get install libsqlite3-dev
 ```
 
-For Filebench experiments, download, build, and install Filebench from the official Filebench GitHub page:
+For **Filebench** experiments, download, build, and install Filebench from the official Filebench GitHub page:
 [Filebench GitHub Repository](https://github.com/filebench/filebench)
 
 All preparations for running the tests are now complete. You can now execute the test and check the results using the script below.
@@ -217,7 +218,7 @@ Results will be in the `result` directory, starting with "fileserver". Report re
 
 Of course, all the above tests can be integrated into a single script below and executed at once.
 ```bash
-runall.sh
+./runall.sh
 ```
 
 ## 6. Results
@@ -275,9 +276,9 @@ GRUB_CMDLINE_LINUX="memmap=16G\\\$16G intremap=off”
 
 2. Modify NVMeVirt start scripts:
 
-Edit memmap_start and memmap_size in nvmevstart_on.sh and nvmevstart_off.sh.
+Edit `memmap_start` and `memmap_size` in `nvmevstart_on.sh` and `nvmevstart_off.sh`. Also, appropriately modify the `cpus` parameter in these scripts.
 
-Example: `memmap_start=16G memmap_size=13G`
+Example: `memmap_start=16G memmap_size=13G cpus=12,13,14,15`
 
 
 3. Adjust virtual device partition size:
