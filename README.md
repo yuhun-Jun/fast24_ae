@@ -11,9 +11,7 @@ Contact: Yuhun Jun (yuhun@skku.edu)
 - [4. NVMeVirt Build](#4-nvmevirt-build)
 - [5. Conducting Evaluation](#5-conducting-evaluation)
 - [6. Results](#6-results)
-<!--
 - [7. Adaptation for Systems with Limited Resources](#7-adaptation-for-systems-with-limited-resources)
--->
 ## 1. Constraints
 
 The experimental environment requires the following specifications:
@@ -32,6 +30,12 @@ A storage device is required for storing external journals. This should be confi
 This guide is based on a clean installation of Ubuntu 20.04 server.
 
 ## 2. Getting Started Instructions
+
+To download this project. The example has been done by executing from the root directory `/`.
+```bash
+cd /
+git clone https://github.com/yuhun-Jun/fast24_ae.git
+```
 
 Retrieve the necessary code from GitHub by executing the script below:
 
@@ -80,6 +84,10 @@ Verify the kernel version:
 ```bash
 uname -r
 ```
+Move to this project directory. The example was executed from the root directory `/`.
+```bash
+cd /fast24_ae
+```
 
 Once "5.15.0DA_515" is confirmed, proceed as follows:
 
@@ -100,6 +108,7 @@ sudo su
 ```
 
 Reserve memory for the emulated NVMe device's storage by modifying `/etc/default/grub`:
+Please note that copying and pasting the content below may occasionally result in errors. It is strongly recommended to type it out manually.
 
 ```bash
 GRUB_CMDLINE_LINUX="memmap=128G\\\$256G intremap=off"
@@ -110,8 +119,8 @@ This configuration reserves 128 GiB of physical memory starting at the 256 GiB o
 Update grub and reboot:
 
 ```bash
-sudo update-grub
-sudo reboot
+update-grub
+reboot
 ```
 
 NVMeVrit operates at high speeds in memory, which can lead to performance differences across NUMA nodes. Therefore, all tests specify a NUMA node using `numactl`. Install `numactl` with the following command:
@@ -133,6 +142,30 @@ Check the NUMA node's memory layout and corresponding CPUs:
 numactl -H
 ```
 
+### NVMeVirt Test Execution
+First, verify that NVMeVirt is functioning correctly in the current environment. If the memory reservation and the NVMeVirt script have been properly modified, the following commands should successfully create and then delete a virtual NVMe device. Verify that both versions, with the approach turned On and Off, are operational.
+
+```bash
+lsblk
+# Check the number of the last NVMe device
+
+./nvmevstart_off.sh
+lsblk
+# Check the number of the newly created NVMe device
+
+rmmod nvmev
+lsblk
+# Verify the virtual device has been deleted
+
+./nvmevstart_on.sh
+lsblk
+# Check the number of the newly created NVMe device
+
+rmmod nvmev
+lsblk
+# Verify the virtual device has been deleted
+```
+
 **Caution!!!:** Improper configuration may cause system damage.
 NVMeVirt creates a new NVMe device, which is assigned a number following the last NVMe device in the system. To determine this, use the `lsblk` command to check the number of the last NVMe device in the system. Then, update the `DATA_NAME` in the `commonvariable.sh` file to the next number. Additionally, an extra device is required for operating with an external journal, so modify the `JOURNAL_NAME` accordingly. The current settings are based on using `nvme4` and `sdb`.
 
@@ -144,6 +177,8 @@ apt-get install libsqlite3-dev
 
 For Filebench experiments, download, build, and install Filebench from the official Filebench GitHub page:
 [Filebench GitHub Repository](https://github.com/filebench/filebench)
+
+All preparations for running the tests are now complete. You can now execute the test and check the results using the script below.
 
 ### Hypothetical Workload
 
@@ -227,7 +262,7 @@ fileserver-small contiguous : 2776.3 MB/s
 fileserver-small Append without Approach: 1721.0 MB/s
 fileserver-small Append with Approach: 2099.3 MB/s
 ```
-<!--
+
 ## 7. Adaptation for Systems with Limited Resources
 
 Standard experiments use 128 GB of memory to emulate a 60 GB SSD. For systems with less memory, such as 16 GB for emulating a 10 GB SSD (assuming a single NUMA node system with 32 GB of memory), the following modifications are necessary.
@@ -258,4 +293,3 @@ Remove “numactl --cpubind=2 --membind=2” from each test script:
 ```bash
 find . -type f -exec sed -i 's/numactl --cpubind=2 --membind=2 //g' {} +
 ```
--->
