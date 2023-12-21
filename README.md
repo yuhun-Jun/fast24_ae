@@ -266,7 +266,7 @@ fileserver-small Append with Approach: 2099.3 MB/s
 
 ## 7. Adaptation for Systems with Limited Resources
 
-Standard experiments use 128 GB of memory to emulate a 60 GB SSD. For systems with less memory, such as 16 GB for emulating a 10 GB SSD (assuming a single NUMA node system with 32 GB of memory), the following modifications are necessary.
+In our standard experiments, we use 128 GB of memory to accurately emulate a 60 GB SSD. For systems with limited memory capacity, such as using 16 GB to emulate a 10 GB SSD in a single NUMA node system equipped with 32 GB of memory, specific adjustments are required. The settings we recommend below are designed to broaden the range of test environments; however, they do not assure consistent results. Our experiments did reveal certain trends, but it's important to note that there was considerable variability in the outcome values.
 
 1. Reserve memory for the emulated NVMe device's storage by modifying `/etc/default/grub`:
 
