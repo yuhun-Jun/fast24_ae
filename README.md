@@ -25,13 +25,13 @@ The experimental environment requires the following specifications:
 
 **Note:** NVMeVirt functions in DRAM and is performance-sensitive. For optimal performance, a setup with at least 128 GB of free space in a single NUMA node is recommended. Since NVMeVirt necessitates a modified kernel, ensure to follow this guide in the order presented.
 
-A storage device is required for storing external journals. This should be configured in `commonvariable.sh` in [Section 5](#5-conducting-evaluation).
+A storage device is required to use the external journal during experiments. The path of the storage must be entered by modifying `commonvariable.sh`. Detailed information about this can be found in [Section 5](#5-conducting-evaluation).
 
 This guide is based on a clean installation of Ubuntu 20.04 server.
 
 ## 2. Getting Started Instructions
 
-To download this project. The example has been done by executing from the root directory `/`.
+We assume that "/" is the working directory.
 ```bash
 cd /
 git clone https://github.com/yuhun-Jun/fast24_ae.git
@@ -45,6 +45,7 @@ cd fast24_ae
 ```
 
 Upon completion, the modified kernel and NVMeVirt will be downloaded into their respective directories.
+For the experiment, it's necessary to build a modified version of the kernel and NVMeVirt, as well as install sqlite and filebench. Details on these procedures are outlined starting from [Section 3](#3-kernel-build).
 
 ## 3. Kernel Build
 Before building the kernel, ensure the following packages are installed:
@@ -85,23 +86,24 @@ Verify the kernel version:
 ```bash
 uname -r
 ```
-Move to this project directory. The example was executed from the root directory `/`.
+Once "5.15.0DA_515" is confirmed, proceed as follows:
+
+Move to this git directory. The example was executed from the root directory `/`.
 ```bash
 cd /fast24_ae
 ```
 
-Once "5.15.0DA_515" is confirmed, proceed as follows:
+Navigate to the NVMeVirt directory and execute the build script.
 
 ```bash
 cd nvmevirt
 ./build.sh
 ```
 
-After the build, `nvmev_on.ko` and `nvmev_off.ko` will be copied to the evaluation directory.
+After the build, `nvmev_on.ko` and `nvmev_off.ko` will be copied to the `fast24_ae/evaluation` directory.
 
 ## 5. Conducting Evaluation
 The experimental operation requires superuser privileges as it uses `fdisk` and `insmod`.
-
 To gain superuser access, enter the following command:
 
 ```bash
