@@ -33,7 +33,7 @@ for reads in {1..1}
 do
     sync; echo 3 | sudo tee /proc/sys/vm/drop_caches >/dev/null 
     sleep 5
-    numactl --cpubind=2 --membind=2 filebench -f filebench/fileserver_read.f >> ./$RESULT_FOLDER/fileserver_small_off.txt
+    numactl --cpubind=$NUMADOMAIN --membind=$NUMADOMAIN filebench -f filebench/fileserver_read.f >> ./$RESULT_FOLDER/fileserver_small_off.txt
 done
 
 source resetdevice.sh
@@ -63,7 +63,7 @@ for reads in {1..1}
 do
     sync; echo 3 | sudo tee /proc/sys/vm/drop_caches >/dev/null 
     sleep 5
-    numactl --cpubind=2 --membind=2 filebench -f filebench/fileserver_read.f >> ./$RESULT_FOLDER/fileserver_small_on.txt
+    numactl --cpubind=$NUMADOMAIN --membind=$NUMADOMAIN filebench -f filebench/fileserver_read.f >> ./$RESULT_FOLDER/fileserver_small_on.txt
 done
 
 source resetdevice.sh
@@ -93,7 +93,7 @@ for reads in {1..1}
 do
     sync; echo 3 | sudo tee /proc/sys/vm/drop_caches >/dev/null 
     sleep 5
-    numactl --cpubind=2 --membind=2 filebench -f filebench/fileserver_read.f >> ./$RESULT_FOLDER/fileserver_small_contiguous.txt
+    numactl --cpubind=$NUMADOMAIN --membind=$NUMADOMAIN filebench -f filebench/fileserver_read.f >> ./$RESULT_FOLDER/fileserver_small_contiguous.txt
 done
 
 source resetdevice.sh

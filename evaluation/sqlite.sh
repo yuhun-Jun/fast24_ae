@@ -19,7 +19,7 @@ source setdevice.sh
 
 sync; echo 3 | sudo tee /proc/sys/vm/drop_caches >/dev/null
 
-numactl --cpubind=2 --membind=2 ./sqlite_ideal >> ./$RESULT_FOLDER/sqlite_contiguous.txt
+numactl --cpubind=$NUMADOMAIN --membind=$NUMADOMAIN ./sqlite_ideal >> ./$RESULT_FOLDER/sqlite_contiguous.txt
 
 source resetdevice.sh
 
@@ -33,7 +33,7 @@ source setdevice.sh
 
 sync; echo 3 | sudo tee /proc/sys/vm/drop_caches >/dev/null
 
-numactl --cpubind=2 --membind=2 ./sqlite_append >> ./$RESULT_FOLDER/sqlite_append_off.txt
+numactl --cpubind=$NUMADOMAIN --membind=$NUMADOMAIN ./sqlite_append >> ./$RESULT_FOLDER/sqlite_append_off.txt
 
 source resetdevice.sh
 
@@ -47,7 +47,7 @@ source setdevice.sh
 
 sync; echo 3 | sudo tee /proc/sys/vm/drop_caches >/dev/null
 
-numactl --cpubind=2 --membind=2 ./sqlite_append >> ./$RESULT_FOLDER/sqlite_append_on.txt
+numactl --cpubind=$NUMADOMAIN --membind=$NUMADOMAIN ./sqlite_append >> ./$RESULT_FOLDER/sqlite_append_on.txt
 
 source resetdevice.sh
 
