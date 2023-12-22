@@ -4,6 +4,8 @@
 ## Title: We Ain't Afraid of No File Fragmentation: Cause and Prevention of Its Performance Impact on Modern Flash SSDs
 Contact: Yuhun Jun (yuhun@skku.edu)
 
+This repository reproduces the evaluation presented in a paper published at FAST '24. The tests are broadly categorized into hypothetical, sqlite, and filebench, and are conducted on a modified kernel and a modified SSD emulator. 'Hypothetical' refers to a workload that induces performance degradation by repeatedly appending to and overwriting a file. Both sqlite and filebench are configured with scenarios that cause fragmentation. The experiments are divided into three situations: contiguous, fragmented, and fragmented with the approach proposed in the paper. The outcomes of each are classified as contiguous, fragmented without approach, and fragmented with approach.
+
 ## Contents
 - [1. Constraints](#1-constraints)
 - [2. Getting Started Instructions](#2-getting-started-instructions)
@@ -88,7 +90,7 @@ uname -r
 ```
 Once "5.15.0DA_515" is confirmed, proceed as follows:
 
-Move to this git directory. The example was executed from the root directory `/`.
+Move to this working directory.
 ```bash
 cd /fast24_ae
 ```
@@ -103,7 +105,11 @@ cd nvmevirt
 After the build, `nvmev_on.ko` and `nvmev_off.ko` will be copied to the `fast24_ae/evaluation` directory.
 
 ## 5. Conducting Evaluation
-The experimental operation requires superuser privileges as it uses `fdisk` and `insmod`.
+The experiments are conducted in the `evaluation` directory.
+```bash
+cd /fast24_ae/evaluation
+```
+The execution of the evaluation code requires superuser privileges as it uses `fdisk` and `insmod`.
 To gain superuser access, enter the following command:
 
 ```bash
@@ -137,8 +143,7 @@ For accuracy, allocate CPUs in the same NUMA node as the reserved memory to NVMe
 ```bash
 insmod ./nvmev_on.ko memmap_start=256G memmap_size=60G cpus=131,132,135,136
 ```
-
-Ensure more memory is reserved than emulated (currently 128 GB for 60 GB emulation). 
+The above means to emulate a size of 60G starting from the physical memory location of 256G, and to allocate CPUs 131, 132, 135, and 136. For minimal performance variation, the CPUs should use the same NUMA node where the memory is located. Ensure more memory is reserved than emulated (currently 128 GB for 60 GB emulation). 
 Check the NUMA node's memory layout and corresponding CPUs:
 
 ```bash
