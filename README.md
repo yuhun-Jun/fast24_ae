@@ -4,7 +4,7 @@
 ## Title: We Ain't Afraid of No File Fragmentation: Cause and Prevention of Its Performance Impact on Modern Flash SSDs
 Contact: Yuhun Jun (yuhun@skku.edu)
 
-This repository reproduces the evaluation presented in a paper published at FAST '24. The tests are broadly categorized into hypothetical, sqlite, and filebench, and are conducted on a modified kernel and a modified SSD emulator. 'Hypothetical' refers to a workload that induces performance degradation by repeatedly appending to and overwriting a file. Both sqlite and filebench are configured with scenarios that cause fragmentation. The experiments are divided into three situations: contiguous, fragmented, and fragmented with the approach proposed in the paper. The outcomes of each are classified as contiguous, fragmented without approach, and fragmented with approach.
+This repository reproduces the evaluation presented in a paper published at FAST '24. The tests are broadly categorized into hypothetical, sqlite, and filebench, and are conducted on a modified kernel and a modified SSD emulator. The 'hypothetical' refers to a workload that induces performance degradation by repeatedly appending to and overwriting a file. Both 'sqlite' and 'filebench' are configured with scenarios that cause fragmentation. Detailed scenarios are described in the paper. The results of the experiments are divided into three categories: contiguous, fragmented without the approach, and fragmented with the approach proposed in the paper.
 
 ## Contents
 - [1. Constraints](#1-constraints)
@@ -149,6 +149,7 @@ Check the NUMA node's memory layout and corresponding CPUs:
 ```bash
 numactl -H
 ```
+In the tested environment, the reserved memory area and CPU were on NUMA node 2. Therefore, all the scripts executed below use `numactl --cpubind=2 --membind=2` to conduct the experiments. If the NUMA node number of the system you are trying to replicate is different, it is recommended to modify the `NUMADOMAIN` settings in `commonvariable.sh` accordingly.
 
 ### NVMeVirt Test Execution
 First, verify that NVMeVirt is functioning correctly in the current environment. If the memory reservation and the NVMeVirt script have been properly modified, the following commands should successfully create and then delete a virtual NVMe device. Verify that both versions, with the approach turned On and Off, are operational.
@@ -296,8 +297,6 @@ sed -i 's/50/10/g' setdevice.sh
 ```
 
 4. Exclude numactl:
-Remove “numactl --cpubind=2 --membind=2” from each test script:
+Set `0` to `NUMADOMAIN` in `commonvariable.sh`
 
-```bash
-find . -type f -exec sed -i 's/numactl --cpubind=2 --membind=2 //g' {} +
-```
+By doing this, the experiment can be run even in environments with limited resources. However, the results cannot be guaranteed.
