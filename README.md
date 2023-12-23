@@ -8,7 +8,7 @@ This repository reproduces the evaluation presented in the paper published at FA
 
 ## Contents
 - [1. Configurations](#1-configurations)
-- [2. Getting Started Instructions](#2-getting-started-instructions)
+- [2. Getting Started](#2-getting-started-instructions)
 - [3. Kernel Build](#3-kernel-build)
 - [4. NVMeVirt Build](#4-nvmevirt-build)
 - [5. Conducting Evaluation](#5-conducting-evaluation)
@@ -34,7 +34,7 @@ A storage device is required to use the external journal during experiments. The
 
 This guide is based on a clean installation of Ubuntu 20.04 server.
 
-## 2. Getting Started Instructions
+## 2. Getting Started
 
 We assume that "/" is the working directory.
 ```bash
