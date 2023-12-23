@@ -4,19 +4,20 @@
 ## Title: We Ain't Afraid of No File Fragmentation: Cause and Prevention of Its Performance Impact on Modern Flash SSDs
 Contact: Yuhun Jun (yuhun@skku.edu)
 
-This repository reproduces the evaluation presented in a paper published at FAST '24. The tests are broadly categorized into hypothetical, sqlite, and filebench, and are conducted on a modified kernel and a modified SSD emulator. The 'hypothetical' refers to a workload that induces performance degradation by repeatedly appending to and overwriting a file. Both 'sqlite' and 'filebench' are configured with scenarios that cause fragmentation. Detailed scenarios are described in the paper. The results of the experiments are divided into three categories: contiguous, fragmented without the approach, and fragmented with the approach proposed in the paper.
+This repository reproduces the evaluation presented in the paper published at FAST '24. The evaluation workload set consists of 'hypothetical,' 'sqlite,' and 'filebench' workloads. The evaluation is carried out with a modified NVMe-Virt on a Linux kernel that is also modified to incorporate the changes proposed in the paper. 'hypothetical' refers to a workload that induces performance degradation by repeatedly appending to and overwriting a file. Both 'sqlite' and 'filebench' are configured with scenarios that cause fragmentation. Detailed scenarios are described in the paper. The results of the experiments are categorized into three groups: contiguous, fragmented without the approach, and fragmented with the approach proposed in the paper.
 
 ## Contents
-- [1. Constraints](#1-constraints)
-- [2. Getting Started Instructions](#2-getting-started-instructions)
+- [1. Configurations](#1-configurations)
+- [2. Getting Started](#2-getting-started-instructions)
 - [3. Kernel Build](#3-kernel-build)
 - [4. NVMeVirt Build](#4-nvmevirt-build)
 - [5. Conducting Evaluation](#5-conducting-evaluation)
 - [6. Results](#6-results)
 - [7. Adaptation for Systems with Limited Resources](#7-adaptation-for-systems-with-limited-resources)
-## 1. Constraints
 
-The experimental environment requires the following specifications:
+## 1. Configurations
+
+The experimental environment was performed on the following hardware configurations:
 
 | **Component** | **Specification**                  |
 |---------------|------------------------------------|
@@ -25,13 +26,15 @@ The experimental environment requires the following specifications:
 | Memory        | DDR4 2666 MHz, 512 GB (32 GB x16)  |
 | OS            | Ubuntu 20.04 Server (kernel v5.15.0)|
 
+However, it is expected that the evaluation can be reproduced on a different hardware setup as long as it has a sufficiently large amount of DRAM space. 
+
 **Note:** NVMeVirt functions in DRAM and is performance-sensitive. For optimal performance, a setup with at least 128 GB of free space in a single NUMA node is recommended. Since NVMeVirt necessitates a modified kernel, ensure to follow this guide in the order presented.
 
 A storage device is required to use the external journal during experiments. The path of the storage must be entered by modifying `commonvariable.sh`. Detailed information about this can be found in [Section 5](#5-conducting-evaluation).
 
 This guide is based on a clean installation of Ubuntu 20.04 server.
 
-## 2. Getting Started Instructions
+## 2. Getting Started
 
 We assume that "/" is the working directory.
 ```bash
@@ -46,8 +49,7 @@ cd fast24_ae
 ./cloneall.sh
 ```
 
-Upon completion, the modified kernel and NVMeVirt will be downloaded into their respective directories.
-For the experiment, it's necessary to build a modified version of the kernel and NVMeVirt, as well as install sqlite and filebench. Details on these procedures are outlined starting from [Section 3](#3-kernel-build).
+For the experiment, it's necessary to build a modified version of the kernel and NVMeVirt, as well as install sqlite and filebench. Upon completion of the above command, the modified kernel and NVMeVirt will be downloaded into their respective directories. Details on the kernel and NVMeVirt builds are outlined starting from [Section 3](#3-kernel-build).
 
 ## 3. Kernel Build
 Before building the kernel, ensure the following packages are installed:
@@ -90,7 +92,7 @@ uname -r
 ```
 Once "5.15.0DA_515" is confirmed, proceed as follows:
 
-Move to this working directory.
+Move to the 'fast24_ae' directory.
 ```bash
 cd /fast24_ae
 ```
