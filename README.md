@@ -92,7 +92,7 @@ uname -r
 ```
 Once "5.15.0DA_515" is confirmed, proceed as follows:
 
-Move to this working directory.
+Move to the 'fast24_ae' directory.
 ```bash
 cd /fast24_ae
 ```
