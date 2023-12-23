@@ -49,8 +49,7 @@ cd fast24_ae
 ./cloneall.sh
 ```
 
-Upon completion, the modified kernel and NVMeVirt will be downloaded into their respective directories.
-For the experiment, it's necessary to build a modified version of the kernel and NVMeVirt, as well as install sqlite and filebench. Details on these procedures are outlined starting from [Section 3](#3-kernel-build).
+For the experiment, it's necessary to build a modified version of the kernel and NVMeVirt, as well as install sqlite and filebench. Upon completion of the above command, the modified kernel and NVMeVirt will be downloaded into their respective directories. Details on the kernel and NVMeVirt builds are outlined starting from [Section 3](#3-kernel-build).
 
 ## 3. Kernel Build
 Before building the kernel, ensure the following packages are installed:
