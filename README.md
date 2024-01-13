@@ -341,7 +341,7 @@ If experimenting with a different new device, the [alignment test](alignment) be
 
 These parameters and the device name are noted in `NVMeX.sh`.
 
-### Alignment (Figure 8) 
+### Alignment (Figure 8) {#alignment}
 Use FIO on the actual device to measure the throughput of 4 KB high queue depth while changing the alignment option from 1 to 1024 KB.
 
 Each device can be evaluated with the following script: `alignment_NVMeX.sh` (X is A, B, D).  
