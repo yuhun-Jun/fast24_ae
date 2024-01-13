@@ -333,18 +333,20 @@ Each script has the device to be operated on fixed at the top, which must be mod
 This experiment is the same as the previously shared hypothetical experiment, except that the device is changed to a real NVMe.
 
 Appropriate stripe size and die granularity size values must be set for the device. The provided scripts are set to operate `NVMe-A` and `NVMe-B`.
-The execution scripts for append write and overwrite are `pseudo_append_NVMe-X.sh` and `pseudo_overwrite_NVMe-X.sh`, respectively, and the results can be summarized through `printresult_pseudo.sh` in a similar manner to before.
+The execution scripts for append write and overwrite are `pseudo_append_NVMe_X.sh` and `pseudo_overwrite_NVMe_X.sh`, respectively, and the results can be summarized through `printresult_pseudo.sh` in a similar manner to before.
 
 For experiments involving devices, it is advisable to apply a trimmed mean that excludes the maximum and minimum values from the ten read performance entries recorded in the result directory. The raw results are saved in a format like `NVMe-X_overwrite_off.txt`.
 
-When experimenting with a new device, conduct the [alignment test](#alignment-(figure-8)) below to determine the 'die allocation granularity' and 'stripe size,' then accordingly adjust the parameters.
+This experiment takes about 10 minutes per script.
 
-These parameters and the device name are noted in `NVMeX.sh`.
+When experimenting with other devices, conduct the [alignment test](#alignment-(figure-8)) below to determine the 'die allocation granularity' and 'stripe size,' then accordingly adjust the parameters.
+
+These parameters and the device name are noted in `NVMeX.sh`.  
 
 ### Alignment (Figure 8)
 Use FIO on the actual device to measure the throughput of 4 KB high queue depth while changing the alignment option from 1 to 1024 KB.
 
-Each device can be evaluated with the following script: `alignment_NVMeX.sh` (where X is A, B, or D).  
+Each device can be evaluated with the following script: `alignment_NVMe_X.sh` (where X is A, B, or D).  
 Results can be found in the result directory under `alignment_NVMe-X.txt`.  
 This experiment takes about 50 minutes per device.
 
@@ -355,13 +357,17 @@ The parameter corresponding to queue depth value is `nr_request`, which can be f
 The script resides in the evaluation directory and reuses the code used in previous hypothetical evaluations.
 
 #### with NVMe Drive 
-This experiment is conducted on actual devices and can be executed using the `varyingdof_NVMeX.sh` script (where X is either A or B).  
+This experiment is conducted on actual devices and can be executed using the `varyingdof_NVMe_X.sh` script (where X is either A or B).  
 The results can be found in the result directory as `vd_NVMe-X_QD1.txt` and `vd_NVMe-X_QD1023.txt`, which show the read performance per DoF at queue depths of 1 and 1023, respectively.
+
+This experiment takes about 40 minutes per script.
 
 #### with ramdisk 
 This experiment operates by utilizing system DRAM as a device and requires approximately 30GB of ramdisk capacity.  
 `varyingdof_ramd.sh` can be used for execution. Since the ramdisk creates an additional loop device, you must enter the correct loop device number generated in your system into the script. This value is the last loop device number +1. It can be easily found through the `lsblk` command.  
 Upon completion of the experiment, the results can be found in the result directory as `vd_ramd_QD1.txt` and `vd_ramd_QD128.txt`. These show the read performance per DoF at queue depths of 1 and 128, respectively.
+
+This experiment takes about 30 minutes per script.
 
 ### Interface Overhead (Figure 7) 
 This experiment observes the overhead due to fragmentation at different queue depths.  
