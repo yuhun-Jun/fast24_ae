@@ -348,17 +348,17 @@ Each device can be evaluated with the following script: `alignment_NVMeX.sh` (wh
 Results can be found in the result directory under `alignment_NVMe-X.txt`.  
 This experiment takes about 50 minutes per device.
 
-### Varying DoF
+### Varying DoF (Figure 3, 4)
 This experiment observes the impact on read performance in `NVMe` and `ramdisk` by changing the DoF.  
 For the experiment, the queue depth must be reduced to 1, but the default kernel's minimum queue depth is 4, so it is necessary to modify it to 1. It is already modified in the [kernel](#3-kernel-build) provided above.  
 The parameter corresponding to queue depth value is `nr_request`, which can be found in the script.  
 The script resides in the evaluation directory and reuses the code used in previous hypothetical evaluations.
 
-#### with NVMe Drive (Figure 3)
+#### with NVMe Drive 
 This experiment is conducted on actual devices and can be executed using the `varyingdof_NVMeX.sh` script (where X is either A or B).  
 The results can be found in the result directory as `vd_NVMe-X_QD1.txt` and `vd_NVMe-X_QD1023.txt`, which show the read performance per DoF at queue depths of 1 and 1023, respectively.
 
-#### with ramdisk (Figure 4) 
+#### with ramdisk 
 This experiment operates by utilizing system DRAM as a device and requires approximately 30GB of ramdisk capacity.  
 `varyingdof_ramd.sh` can be used for execution. Since the ramdisk creates an additional loop device, you must enter the correct loop device number generated in your system into the script. This value is the last loop device number +1. It can be easily found through the `lsblk` command.  
 Upon completion of the experiment, the results can be found in the result directory as `vd_ramd_QD1.txt` and `vd_ramd_QD128.txt`. These show the read performance per DoF at queue depths of 1 and 128, respectively.
