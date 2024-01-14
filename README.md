@@ -14,7 +14,7 @@ This repository reproduces the evaluation presented in the paper published at FA
 - [5. Conducting Evaluation](#5-conducting-evaluation)
 - [6. Results](#6-results)
 - [7. Adaptation for Systems with Limited Resources](#7-adaptation-for-systems-with-limited-resources)
-- [8. Additional Evaluations](#8-additional-evaluations)
+- [8. Extensions for Rebuttal](#8-extensions-for-rebuttal)
 
 ## 1. Configurations
 
@@ -304,11 +304,11 @@ Set `0` to `NUMADOMAIN` in `commonvariable.sh`
 
 By doing this, the experiment can be run even in environments with limited resources. However, the results cannot be guaranteed.
 
-## 8. Extentions for Rebuttal 
-### (After the rebuttal, these will each be placed in their respective positions. These require the actual devices and pre-existing knowledge about their interal paramters)
+## 8. Extensions for Rebuttal 
+### (After the rebuttal, these will each be placed in their respective positions. These require the actual devices and pre-existing knowledge about their internal parameters)
 
 The following are evaluations for Fig.3, 4, 8, and 11. The scripts are written to observe the characteristics of actual devices, including *ramdisk*.
-There may be variations within the margin of statistical error are possible across experimental run.
+There may be variations within the margin of statistical error are possible across experimental runs.
 
 **Caution!!!:** 
 The following experiments access actual devices and perform a full-area trim (secure erase) during their operation. Therefore, if multiple reviewers test simultaneously on the server, the results can be contaminated. 
