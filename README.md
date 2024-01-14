@@ -307,12 +307,12 @@ By doing this, the experiment can be run even in environments with limited resou
 ## 8. Extensions for Rebuttal 
 ### (After the rebuttal, these will each be placed in their respective positions. These require the actual devices and pre-existing knowledge about their internal parameters)
 
-The following are evaluations for Fig.3, 4, 8, and 11. The scripts are written to observe the characteristics of actual devices, including *ramdisk*.
+The following are evaluations for Fig.3, 4, 7, 8, and 11. The scripts are written to observe the characteristics of actual devices, including *ramdisk*.
 There may be variations within the margin of statistical error are possible across experimental runs.
 
 **Caution!!!:** 
 The following experiments access actual devices and perform a full-area trim (secure erase) during their operation. Therefore, if multiple reviewers test simultaneously on the server, the results can be contaminated. 
-The server provided for verification is equipped with `NVMe-A`, `B`, `D` (The server has only three available slots for the NVMe SSDs excluding the system disks), and SATA-A, with distinct scripts created to correspond to each device number. Access to devices other than those provided is strictly prohibited as it can damage the system disks.
+The server provided for verification is equipped with `NVMe-A`, `B`, `D` (The server has only three available slots for the NVMe SSDs excluding the system disks), SATA-A, and SATA-Bwith distinct scripts created to correspond to each device number. Access to devices other than those provided is strictly prohibited as it can damage the system disks.
 
 To ensure execution of the trim operation, a read command is executed for five minutes, preventing the device from entering sleep mode. This is done through an FIO workload named `waittrim`.
 
@@ -332,7 +332,7 @@ Each script has the device to be operated on fixed at the top, which must be mod
 ### Varying DoF (Figure 3, 4)
 This experiment observes the impact on read performance in `NVMe` and `ramdisk` by changing the DoF.  
 For the experiment, the queue depth must be reduced to 1, but the default kernel's minimum queue depth is 4, so it is necessary to modify it to 1. It is already modified in the [kernel](#3-kernel-build) provided above.  
-The parameter corresponding to queue depth value is `nr_request`, which can be found in the script.  
+The parameter corresponding to queue depth value is `nr_requests`, which can be found in the script.  
 The script resides in the `evaluation` directory and reuses the code used in previous hypothetical evaluations.
 
 #### with NVMe Drive 
