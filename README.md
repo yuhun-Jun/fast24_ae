@@ -312,7 +312,7 @@ There may be variations within the margin of statistical error are possible acro
 
 **Caution!!!:** 
 The following experiments access actual devices and perform a full-area trim (secure erase) during their operation. Therefore, if multiple reviewers test simultaneously on the server, the results can be contaminated. 
-The server provided for verification is equipped with `NVMe-A`, `B`, and `D` (The server has only three available slots for the NVMe SSDs excluding the system disks), with distinct scripts created to correspond to each device number. Access to devices other than those provided is strictly prohibited as it can damage the system disks.
+The server provided for verification is equipped with `NVMe-A`, `B`, `D` (The server has only three available slots for the NVMe SSDs excluding the system disks), and SATA-A, with distinct scripts created to correspond to each device number. Access to devices other than those provided is strictly prohibited as it can damage the system disks.
 
 To ensure execution of the trim operation, a read command is executed for five minutes, preventing the device from entering sleep mode. This is done through an FIO workload named `waittrim`.
 
@@ -333,7 +333,7 @@ Each script has the device to be operated on fixed at the top, which must be mod
 This experiment observes the impact on read performance in `NVMe` and `ramdisk` by changing the DoF.  
 For the experiment, the queue depth must be reduced to 1, but the default kernel's minimum queue depth is 4, so it is necessary to modify it to 1. It is already modified in the [kernel](#3-kernel-build) provided above.  
 The parameter corresponding to queue depth value is `nr_request`, which can be found in the script.  
-The script resides in the evaluation directory and reuses the code used in previous hypothetical evaluations.
+The script resides in the `evaluation` directory and reuses the code used in previous hypothetical evaluations.
 
 #### with NVMe Drive 
 This experiment is conducted on actual devices and can be executed using the `varyingdof_NVMe_X.sh` script (where X is either A or B).  
@@ -353,7 +353,10 @@ This experiment observes the overhead due to fragmentation at different queue de
 This experiment, measuring throughput with minimal IO, is not recommended for server-based experiments due to significant overhead from device sleep.  
 The protocol overhead of SSDs can be simply evaluated on a local machine. The evaluation consists of a single line of FIO code.  
 The operational script is `interface_NVMe.sh`. The results are recorded as FIO logs in the `interfaceresult` directory.  
-As measuring the short execution time of FIO is difficult, for QD1, you should multiply the average latency by the number of IOs, and for QD32, calculate the time by reverse calculating the throughput.
+As measuring the short execution time of FIO is difficult, for queue depth 1, you should multiply the average latency by the number of IOs, and for queue depth 32, calculate the time by reverse calculating the throughput.
+Additionally, when dealing with NVMe at queue depth 32, it's important to bear in mind that the process may conclude too swiftly for FIO to capture performance accurately.  
+
+Before performing tests on SATA devices, refer to the section "Testing on SATA" below.
 
 ### Alignment (Figure 8)
 Use FIO on the actual device to measure the throughput of 4 KB high queue depth while changing the alignment option from 1 to 1024 KB.
@@ -362,30 +365,41 @@ Each device can be evaluated with the following script: `alignment_NVMe_X.sh` (w
 Results can be found in the result directory under `alignment_NVMe-X.txt`.  
 This experiment takes about 55 minutes per device.
 
+Before performing tests on SATA devices, refer to the section "Testing on SATA" below.
+
 ### Pseudo Approach (Figure 11)
 This experiment is the same as the previously shared hypothetical experiment, except that the device is changed to a real NVMe.
 
 Appropriate stripe size and die granularity size values must be set for the device. The provided scripts are set to operate `NVMe-A` and `NVMe-B`.
-The execution scripts for append write and overwrite are `pseudo_append_NVMe_X.sh` and `pseudo_overwrite_NVMe_X.sh`, respectively, and the results can be summarized through `printresult_pseudo.sh` in a similar manner to before.
+The execution scripts for append write and overwrite are `pseudo_append_NVMe_X.sh` and `pseudo_overwrite_NVMe_X.sh`, respectively, and the results can be summarized through `printresult_pseudo_NVMe.sh` in a similar manner to before.
 
-For experiments involving devices, it is advisable to apply a trimmed mean that excludes the maximum and minimum values from the ten read performance entries recorded in the result directory. The raw results are saved in a format like `NVMe-X_overwrite_off.txt`.
+For experiments involving devices, it is advisable to apply a trimmed mean that excludes the maximum and minimum values from the ten read performance entries recorded in the result directory. The raw results are saved in a format like `pseudo_append_NVMe-X_off.txt`.
 
 This experiment takes about 20 minutes per script.
 
-When experimenting with other devices, conduct the [alignment test](#alignment-(figure-8)) below to determine the 'die allocation granularity' and 'stripe size,' then accordingly adjust the parameters.
+When experimenting with other devices, conduct the "Alignment" test above to determine the 'die allocation granularity' and 'stripe size,' then accordingly adjust the parameters.
 
 These parameters and the device name are noted in `NVMeX.sh`.  
 
+Before performing tests on SATA devices, refer to the section "Testing on SATA" below.
+
 ## Testing on SATA
 All the above experiments can also be performed on SATA devices. However, the trim (secure erase) must be performed according to the SATA command interface.  
-An example of performing a secure erase is as follows. Beforehand, the SATA device must be in an unfrozen state, which can be simply created by hot swapping after rebooting.  
+An example of performing a secure erase is as follows.   
+Experiments with SATA can only be conducted when the device is in a "not frozen" state. The current status can be checked using the command below.
+
+```bash
+hdparm -I /dev/sdx | grep frozen
+```
+
+To resolve a "frozen" state, hot swapping is required after rebooting.  
 Since the automation of this is difficult, we share the secure erase command as follows.
 
 (DEVICE=/dev/sdx)
 ```bash
 hdparm --user-master u --security-set-pass p $DEVICE
 hdparm --user-master u --security-erase-enhanced p $DEVICE
-echo "trim wait read 10min"
-sudo fio --ioengine=libaio --name="waittrim" --rw=randread --bs=4K --filename=$DEVICE --direct=1 --iodepth=1 --offset=0 --norandommap --time_based --runtime=10m --thinktime=1s --thinktime_blocks=1    
+echo "trim wait read 5min"
+sudo fio --ioengine=libaio --name="waittrim" --rw=randread --bs=4K --filename=$DEVICE --direct=1 --iodepth=1 --offset=0 --norandommap --time_based --runtime=5m --thinktime=1s --thinktime_blocks=1    
 
 ```
