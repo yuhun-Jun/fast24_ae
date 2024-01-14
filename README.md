@@ -304,17 +304,18 @@ Set `0` to `NUMADOMAIN` in `commonvariable.sh`
 
 By doing this, the experiment can be run even in environments with limited resources. However, the results cannot be guaranteed.
 
-## 8. Additional Evaluations
-The following are evaluations in areas of analysis where our approach is not included. Therefore, the modified NVMeVirt is not required.
-Except for the ramdisk evaluation, actual devices are necessary to perform these tests. Performance variations may occur depending on system and device status, but the trends are guaranteed.
+## 8. Extentions for Rebuttal 
+### (After the rebuttal, these will each be placed in their respective positions. These require the actual devices and pre-existing knowledge about their interal paramters)
+
+The following are evaluations for Fig.3, 4, 8, and 11. The scripts are written to observe the characteristics of actual devices, including *ramdisk*.
+There may be variations within the margin of statistical error are possible across experimental run.
 
 **Caution!!!:** 
-The following experiments access actual devices and perform a full-area trim (secure erase) during their operation. Therefore, if multiple reviewers test simultaneously on the server, not only can results be contaminated, but there is also a risk of damaging the system.
+The following experiments access actual devices and perform a full-area trim (secure erase) during their operation. Therefore, if multiple reviewers test simultaneously on the server, the results can be contaminated. 
+The server provided for verification is equipped with `NVMe-A`, `B`, and `D` (The server has only three available slots for the NVMe SSDs excluding the system disks), with distinct scripts created to correspond to each device number. Access to devices other than those provided is strictly prohibited as it can damage the system disks.
 
 To ensure execution of the trim operation, a read command is executed for one minute, preventing the device from entering sleep mode. This is done through an FIO workload named `waittrim`.
 
-The server provided for verification is equipped with `NVMe-A`, `B`, and `D`, with distinct scripts created to correspond to each device number.
-Access to devices other than those provided is strictly prohibited as they are already in use.
 Like previous experiments, each test requires an extra drive for external journaling; the default is `sdb`.
 
 Device verification can be done with the following command.
@@ -322,33 +323,11 @@ Device verification can be done with the following command.
 nvme list
 ```
 
-When evaluating actual SSDs, accurate performance measurement becomes impossible if they enter a sleep state due to power management. To prevent this, several provided scripts perform small background reads.
+Real SSDs may enter a sleep state due to their power management, and this disturbs the correct measurement of the performance. To prevent the devices from entering into the sleep state, the provided scripts perform small background reads from time to time. In the server we evaluated, this phenomenon occurred only with NVMe-A among the devices we used. However, it may happen to other SSDs that will be experimented with the provided scripts in the future. Therefore, for the sake of automation, we have incorporated this sleep-deprivation operation into all the scripts.
 
-In the server we evaluated, this phenomenon occurred only with NVMe-A, and it may differ across various systems and SSDs. For our evaluation, we manually initiated background wakeups only for the SSDs that exhibited issues. However, for the sake of automation, we have incorporated this step into all the scripts.
-
-**Note:** As the scripts perform device wipe during execution, utmost caution is needed when using them on different systems.
+**Note:** As the scripts perform device wipe during execution, utmost caution is needed when using them on your systems.
 Each script has the device to be operated on fixed at the top, which must be modified according to the system.
 
-### Pseudo Approach (Figure 11)
-This experiment is the same as the previously shared hypothetical experiment, except that the device is changed to a real NVMe.
-
-Appropriate stripe size and die granularity size values must be set for the device. The provided scripts are set to operate `NVMe-A` and `NVMe-B`.
-The execution scripts for append write and overwrite are `pseudo_append_NVMe_X.sh` and `pseudo_overwrite_NVMe_X.sh`, respectively, and the results can be summarized through `printresult_pseudo.sh` in a similar manner to before.
-
-For experiments involving devices, it is advisable to apply a trimmed mean that excludes the maximum and minimum values from the ten read performance entries recorded in the result directory. The raw results are saved in a format like `NVMe-X_overwrite_off.txt`.
-
-This experiment takes about 10 minutes per script.
-
-When experimenting with other devices, conduct the [alignment test](#alignment-(figure-8)) below to determine the 'die allocation granularity' and 'stripe size,' then accordingly adjust the parameters.
-
-These parameters and the device name are noted in `NVMeX.sh`.  
-
-### Alignment (Figure 8)
-Use FIO on the actual device to measure the throughput of 4 KB high queue depth while changing the alignment option from 1 to 1024 KB.
-
-Each device can be evaluated with the following script: `alignment_NVMe_X.sh` (where X is A, B, or D).  
-Results can be found in the result directory under `alignment_NVMe-X.txt`.  
-This experiment takes about 50 minutes per device.
 
 ### Varying DoF (Figure 3, 4)
 This experiment observes the impact on read performance in `NVMe` and `ramdisk` by changing the DoF.  
@@ -376,10 +355,31 @@ The protocol overhead of SSDs can be simply evaluated on a local machine. The ev
 The operational script is `interface_NVMe.sh`. The results are recorded as FIO logs in the `interfaceresult` directory.  
 As measuring the short execution time of FIO is difficult, for QD1, you should multiply the average latency by the number of IOs, and for QD32, calculate the time by reverse calculating the throughput.
 
+### Alignment (Figure 8)
+Use FIO on the actual device to measure the throughput of 4 KB high queue depth while changing the alignment option from 1 to 1024 KB.
+
+Each device can be evaluated with the following script: `alignment_NVMe_X.sh` (where X is A, B, or D).  
+Results can be found in the result directory under `alignment_NVMe-X.txt`.  
+This experiment takes about 50 minutes per device.
+
+### Pseudo Approach (Figure 11)
+This experiment is the same as the previously shared hypothetical experiment, except that the device is changed to a real NVMe.
+
+Appropriate stripe size and die granularity size values must be set for the device. The provided scripts are set to operate `NVMe-A` and `NVMe-B`.
+The execution scripts for append write and overwrite are `pseudo_append_NVMe_X.sh` and `pseudo_overwrite_NVMe_X.sh`, respectively, and the results can be summarized through `printresult_pseudo.sh` in a similar manner to before.
+
+For experiments involving devices, it is advisable to apply a trimmed mean that excludes the maximum and minimum values from the ten read performance entries recorded in the result directory. The raw results are saved in a format like `NVMe-X_overwrite_off.txt`.
+
+This experiment takes about 10 minutes per script.
+
+When experimenting with other devices, conduct the [alignment test](#alignment-(figure-8)) below to determine the 'die allocation granularity' and 'stripe size,' then accordingly adjust the parameters.
+
+These parameters and the device name are noted in `NVMeX.sh`.  
+
 ## Testing on SATA
-All the above experiments can also be performed on SATA devices. However, the trim (secure erase) must be performed according to SATA.  
+All the above experiments can also be performed on SATA devices. However, the trim (secure erase) must be performed according to the SATA command interface.  
 An example of performing a secure erase is as follows. Beforehand, the SATA device must be in an unfrozen state, which can be simply created by hot swapping after rebooting.  
-Since automation is difficult, only the below secure erase script is shared.
+Since the automation of this is difficult, we share the secure erase command as follows.
 
 (DEVICE=/dev/sdx)
 ```bash
