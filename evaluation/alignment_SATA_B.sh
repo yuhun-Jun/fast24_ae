@@ -8,4 +8,4 @@ DATA_DEV="/dev/"$DATA_NAME""
 source trim_SATA.sh
 
 sleep 2
-source alignment.sh
+source alignment_SATA.sh
