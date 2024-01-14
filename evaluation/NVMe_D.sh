@@ -1,0 +1,7 @@
+DATA_NAME="nvme0n1"
+RESULT_NAME="NVMe-D"
+
+KB=1024
+MB=`expr 1024 "*" $KB`
+STRIPE_SIZE=`0`
+APPEND_SIZE=`0`

@@ -1,0 +1,7 @@
+DATA_NAME="sdb"
+RESULT_NAME="SATA-B"
+
+KB=1024
+MB=`expr 1024 "*" $KB`
+STRIPE_SIZE=`expr 256 "*" $KB`
+APPEND_SIZE=`expr 16 "*" $KB`
