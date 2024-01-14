@@ -314,7 +314,7 @@ There may be variations within the margin of statistical error are possible acro
 The following experiments access actual devices and perform a full-area trim (secure erase) during their operation. Therefore, if multiple reviewers test simultaneously on the server, the results can be contaminated. 
 The server provided for verification is equipped with `NVMe-A`, `B`, and `D` (The server has only three available slots for the NVMe SSDs excluding the system disks), with distinct scripts created to correspond to each device number. Access to devices other than those provided is strictly prohibited as it can damage the system disks.
 
-To ensure execution of the trim operation, a read command is executed for one minute, preventing the device from entering sleep mode. This is done through an FIO workload named `waittrim`.
+To ensure execution of the trim operation, a read command is executed for five minutes, preventing the device from entering sleep mode. This is done through an FIO workload named `waittrim`.
 
 Like previous experiments, each test requires an extra drive for external journaling; the default is `sdb`.
 
@@ -339,7 +339,7 @@ The script resides in the evaluation directory and reuses the code used in previ
 This experiment is conducted on actual devices and can be executed using the `varyingdof_NVMe_X.sh` script (where X is either A or B).  
 The results can be found in the result directory as `vd_NVMe-X_QD1.txt` and `vd_NVMe-X_QD1023.txt`, which show the read performance per DoF at queue depths of 1 and 1023, respectively.
 
-This experiment takes about 40 minutes per script.
+This experiment takes about 80 minutes per script.
 
 #### with ramdisk 
 This experiment operates by utilizing system DRAM as a device and requires approximately 30GB of ramdisk capacity.  
@@ -360,7 +360,7 @@ Use FIO on the actual device to measure the throughput of 4 KB high queue depth 
 
 Each device can be evaluated with the following script: `alignment_NVMe_X.sh` (where X is A, B, or D).  
 Results can be found in the result directory under `alignment_NVMe-X.txt`.  
-This experiment takes about 50 minutes per device.
+This experiment takes about 55 minutes per device.
 
 ### Pseudo Approach (Figure 11)
 This experiment is the same as the previously shared hypothetical experiment, except that the device is changed to a real NVMe.
@@ -370,7 +370,7 @@ The execution scripts for append write and overwrite are `pseudo_append_NVMe_X.s
 
 For experiments involving devices, it is advisable to apply a trimmed mean that excludes the maximum and minimum values from the ten read performance entries recorded in the result directory. The raw results are saved in a format like `NVMe-X_overwrite_off.txt`.
 
-This experiment takes about 10 minutes per script.
+This experiment takes about 20 minutes per script.
 
 When experimenting with other devices, conduct the [alignment test](#alignment-(figure-8)) below to determine the 'die allocation granularity' and 'stripe size,' then accordingly adjust the parameters.
 
@@ -385,4 +385,7 @@ Since the automation of this is difficult, we share the secure erase command as 
 ```bash
 hdparm --user-master u --security-set-pass p $DEVICE
 hdparm --user-master u --security-erase-enhanced p $DEVICE
+echo "trim wait read 10min"
+sudo fio --ioengine=libaio --name="waittrim" --rw=randread --bs=4K --filename=$DEVICE --direct=1 --iodepth=1 --offset=0 --norandommap --time_based --runtime=10m --thinktime=1s --thinktime_blocks=1    
+
 ```
