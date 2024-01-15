@@ -312,7 +312,7 @@ There may be variations within the margin of statistical error are possible acro
 
 **Caution!!!:** 
 The following experiments access actual devices and perform a full-area trim (secure erase) during their operation. Therefore, if multiple reviewers test simultaneously on the server, the results can be contaminated. 
-The server provided for verification is equipped with `NVMe-A`, `B`, `D` (The server has only three available slots for the NVMe SSDs excluding the system disks), SATA-A, and SATA-Bwith distinct scripts created to correspond to each device number. Access to devices other than those provided is strictly prohibited as it can damage the system disks.
+The server provided for verification is equipped with NVMe-A, B, D (The server has only three available slots for the NVMe SSDs excluding the system disks), SATA-A, and SATA-Bwith distinct scripts created to correspond to each device number. Access to devices other than those provided is strictly prohibited as it can damage the system disks.
 
 To ensure execution of the trim operation, a read command is executed for five minutes, preventing the device from entering sleep mode. This is done through an FIO workload named `waittrim`.
 
@@ -393,13 +393,4 @@ hdparm -I /dev/sdx | grep frozen
 ```
 
 To resolve a "frozen" state, hot swapping is required after rebooting.  
-Since the automation of this is difficult, we share the secure erase command as follows.
-
-(DEVICE=/dev/sdx)
-```bash
-hdparm --user-master u --security-set-pass p $DEVICE
-hdparm --user-master u --security-erase-enhanced p $DEVICE
-echo "trim wait read 5min"
-sudo fio --ioengine=libaio --name="waittrim" --rw=randread --bs=4K --filename=$DEVICE --direct=1 --iodepth=1 --offset=0 --norandommap --time_based --runtime=5m --thinktime=1s --thinktime_blocks=1    
-
-```
+After confirming the status, you can use a script named with 'SATA' instead of 'NVMe' to perform the operations.  
