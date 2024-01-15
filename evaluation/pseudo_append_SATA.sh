@@ -40,11 +40,7 @@ do
     mount -o nodelalloc $DATA_PAT $TARGET_FOLDER
     echo 0 > /sys/fs/ext4/$DATA_PAT_NAME/reserved_clusters
     echo 4200000000 > /sys/fs/ext4/$DATA_PAT_NAME/mb_stream_req
-
-    #bg wakeup
-    fio --ioengine=libaio --name="wakeup" --rw=randread --bs=4K --filename=$DATA_DEV --direct=1 --iodepth=1 --offset=0 --size=4K --norandommap --time_based --runtime=24h --thinktime=0.5s --thinktime_blocks=1 &
-    bg_pid=$!
-
+    
     sleep 1
     DUMMYAPPEND_SIZE=`expr $STRIPE_SIZE "-" $APPEND_SIZE`
     TARGET_FILENAME=T0
@@ -54,9 +50,6 @@ do
 
     sleep 1
     filefrag -e $TARGET_FOLDER$TARGET_FILENAME.data
-
-    #kill bg wakeup
-    kill $bg_pid
 
     umount $TARGET_FOLDER
     printf "d\nw\n" | sudo fdisk $DATA_DEV
@@ -79,10 +72,6 @@ do
     echo 0 > /sys/fs/ext4/$DATA_PAT_NAME/reserved_clusters
     echo 4200000000 > /sys/fs/ext4/$DATA_PAT_NAME/mb_stream_req
 
-    #bg wakeup
-    fio --ioengine=libaio --name="wakeup" --rw=randread --bs=4K --filename=$DATA_DEV --direct=1 --iodepth=1 --offset=0 --size=4K --norandommap --time_based --runtime=24h --thinktime=0.5s --thinktime_blocks=1 &
-    bg_pid=$!
-
     sleep 1
     DUMMYAPPEND_SIZE=$STRIPE_SIZE
     TARGET_FILENAME=T0
@@ -93,9 +82,6 @@ do
 
     sleep 1
     filefrag -e $TARGET_FOLDER$TARGET_FILENAME.data
-
-    #kill bg wakeup
-    kill $bg_pid
 
     umount $TARGET_FOLDER
     printf "d\nw\n" | sudo fdisk $DATA_DEV
