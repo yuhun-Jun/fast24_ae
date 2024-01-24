@@ -11,10 +11,9 @@ This repository reproduces the evaluation presented in the paper published at FA
 - [2. Getting Started](#2-getting-started)
 - [3. Kernel Build](#3-kernel-build)
 - [4. NVMeVirt Build](#4-nvmevirt-build)
-- [5. Conducting Evaluation](#5-conducting-evaluation)
-- [6. Results](#6-results)
+- [5. Analysis of Fragmentation-Induced Performance Degradation](#5-analysis-of-fragmentation-induced-performance-degradation)
+- [6. Conducting Evaluation of Approach](#6-conducting-evaluation-of-approach)
 - [7. Adaptation for Systems with Limited Resources](#7-adaptation-for-systems-with-limited-resources)
-- [8. Extensions for Rebuttal](#8-extensions-for-rebuttal)
 
 ## 1. Configurations
 
@@ -107,7 +106,85 @@ cd nvmevirt
 
 After the build, `nvmev_on.ko` and `nvmev_off.ko` will be copied to the `fast24_ae/evaluation` directory.
 
-## 5. Conducting Evaluation
+## 5. Analysis of Fragmentation-Induced Performance Degradation
+
+The following are evaluations for Fig.3, 4, 7, and 8. The scripts are written to observe the characteristics of actual devices, including *ramdisk*.
+There may be variations within the margin of statistical error are possible across experimental runs.
+
+**Caution!!!:** 
+The following experiments access actual devices and perform a full-area trim (secure erase) during their operation. Therefore, if multiple reviewers test simultaneously on the server, the results can be contaminated. 
+
+To ensure execution of the trim operation, a read command is executed for five minutes, preventing the device from entering sleep mode. This is done through an FIO workload named `waittrim`.
+
+Like previous experiments, each test requires an extra drive for external journaling; the default is `sdb`.
+
+Device verification can be done with the following command.
+```bash
+nvme list
+```
+
+Real SSDs may enter a sleep state due to their power management, and this disturbs the correct measurement of the performance. To prevent the devices from entering into the sleep state, the provided scripts perform small background reads from time to time. In the server we evaluated, this phenomenon occurred only with NVMe-A among the devices we used. However, it may happen to other SSDs that will be experimented with the provided scripts in the future. Therefore, for the sake of automation, we have incorporated this sleep-deprivation operation into all the scripts.
+
+**Note:** As the scripts perform device wipe during execution, utmost caution is needed when using them on your systems.
+Each script has the device to be operated on fixed at the top, which must be modified according to the system.
+
+### Varying DoF (Figure 3, 4)
+This experiment observes the impact on read performance in `NVMe` and `ramdisk` by changing the DoF.  
+For the experiment, the queue depth must be reduced to 1, but the default kernel's minimum queue depth is 4, so it is necessary to modify it to 1. It is already modified in the [kernel](#3-kernel-build) provided above.  
+The parameter corresponding to queue depth value is `nr_requests`, which can be found in the script.  
+The script resides in the `evaluation` directory.
+
+#### with NVMe Drive 
+This experiment is conducted on actual devices and can be executed using the `varyingdof_NVMe_X.sh` script (where X is either A or B).  
+The results can be found in the result directory as `vd_NVMe-X_QD1.txt` and `vd_NVMe-X_QD1023.txt`, which show the read performance per DoF at queue depths of 1 and 1023, respectively.
+
+This experiment takes about 80 minutes per script.
+
+#### with ramdisk 
+This experiment operates by utilizing system DRAM as a device and requires approximately 30GB of ramdisk capacity.  
+`varyingdof_ramd.sh` can be used for execution. Since the ramdisk creates an additional loop device, you must enter the correct loop device number generated in your system into the script. This value is the last loop device number +1. It can be easily found through the `lsblk` command.  
+Upon completion of the experiment, the results can be found in the result directory as `vd_ramd_QD1.txt` and `vd_ramd_QD128.txt`. These show the read performance per DoF at queue depths of 1 and 128, respectively.
+
+This experiment takes about 30 minutes per script.
+
+### Interface Overhead (Figure 7) 
+This experiment observes the overhead due to fragmentation at different queue depths.  
+This experiment, measuring throughput with minimal IO, is not recommended for server-based experiments due to significant overhead from device sleep.  
+The protocol overhead of SSDs can be simply evaluated on a local machine. The evaluation consists of a single line of FIO code.  
+The operational script is `interface_NVMe.sh`. The results are recorded as FIO logs in the `interfaceresult` directory.  
+As measuring the short execution time of FIO is difficult, for queue depth 1, you should multiply the average latency by the number of IOs, and for queue depth 32, calculate the time by reverse calculating the throughput.
+Additionally, when dealing with NVMe at queue depth 32, it's important to bear in mind that the process may conclude too swiftly for FIO to capture performance accurately.  
+
+Before performing tests on SATA devices, refer to the section "Testing on SATA" below.
+
+### Alignment (Figure 8)
+Use FIO on the actual device to measure the throughput of 4 KB high queue depth while changing the alignment option from 1 to 1024 KB.
+
+Each device can be evaluated with the following script: `alignment_NVMe_X.sh` (where X is A, B, or D).  
+Results can be found in the result directory under `alignment_NVMe-X.txt`.  
+This experiment takes about 55 minutes per device.
+
+Before performing tests on SATA devices, refer to the section "Testing on SATA" below.
+
+## 6. Conducting Evaluation of Approach
+
+### Pseudo Approach (Figure 11)
+This experiment is the same as the previously shared "Varying DoF" experiment, except that the device is changed to a real NVMe.
+
+Appropriate stripe size and die granularity size values must be set for the device. The provided scripts are set to operate `NVMe-A` and `NVMe-B`.
+The execution scripts for append write and overwrite are `pseudo_append_NVMe_X.sh` and `pseudo_overwrite_NVMe_X.sh`, respectively, and the results can be summarized through `printresult_pseudo_NVMe.sh`.
+
+For experiments involving devices, it is advisable to apply a trimmed mean that excludes the maximum and minimum values from the ten read performance entries recorded in the result directory. The raw results are saved in a format like `pseudo_append_NVMe-X_off.txt`.
+
+This experiment takes about 20 minutes per script.
+
+When experimenting with other devices, conduct the "Alignment" test above to determine the 'die allocation granularity' and 'stripe size,' then accordingly adjust the parameters.
+
+These parameters and the device name are noted in `NVMeX.sh`.  
+
+Before performing tests on SATA devices, refer to the section "Testing on SATA" below.
+
+### Approach (Figure 12)
 The experiments are conducted in the `evaluation` directory.
 ```bash
 cd /fast24_ae/evaluation
@@ -232,7 +309,7 @@ Of course, all the above tests can be integrated into a single script below and 
 ./runall.sh
 ```
 
-## 6. Results
+### Results
 Once the evaluation is complete, you can check the results all at once with the following command inside the evaluation directory.
 
 ```bash
@@ -303,85 +380,6 @@ sed -i 's/50/10/g' setdevice.sh
 Set `0` to `NUMADOMAIN` in `commonvariable.sh`
 
 By doing this, the experiment can be run even in environments with limited resources. However, the results cannot be guaranteed.
-
-## 8. Extensions for Rebuttal 
-### (After the rebuttal, these will each be placed in their respective positions. These require the actual devices and pre-existing knowledge about their internal parameters)
-
-The following are evaluations for Fig.3, 4, 7, 8, and 11. The scripts are written to observe the characteristics of actual devices, including *ramdisk*.
-There may be variations within the margin of statistical error are possible across experimental runs.
-
-**Caution!!!:** 
-The following experiments access actual devices and perform a full-area trim (secure erase) during their operation. Therefore, if multiple reviewers test simultaneously on the server, the results can be contaminated. 
-The server provided for verification is equipped with NVMe-A, B, D (The server has only three available slots for the NVMe SSDs excluding the system disks), SATA-A, and SATA-Bwith distinct scripts created to correspond to each device number. Access to devices other than those provided is strictly prohibited as it can damage the system disks.
-
-To ensure execution of the trim operation, a read command is executed for five minutes, preventing the device from entering sleep mode. This is done through an FIO workload named `waittrim`.
-
-Like previous experiments, each test requires an extra drive for external journaling; the default is `sdb`.
-
-Device verification can be done with the following command.
-```bash
-nvme list
-```
-
-Real SSDs may enter a sleep state due to their power management, and this disturbs the correct measurement of the performance. To prevent the devices from entering into the sleep state, the provided scripts perform small background reads from time to time. In the server we evaluated, this phenomenon occurred only with NVMe-A among the devices we used. However, it may happen to other SSDs that will be experimented with the provided scripts in the future. Therefore, for the sake of automation, we have incorporated this sleep-deprivation operation into all the scripts.
-
-**Note:** As the scripts perform device wipe during execution, utmost caution is needed when using them on your systems.
-Each script has the device to be operated on fixed at the top, which must be modified according to the system.
-
-
-### Varying DoF (Figure 3, 4)
-This experiment observes the impact on read performance in `NVMe` and `ramdisk` by changing the DoF.  
-For the experiment, the queue depth must be reduced to 1, but the default kernel's minimum queue depth is 4, so it is necessary to modify it to 1. It is already modified in the [kernel](#3-kernel-build) provided above.  
-The parameter corresponding to queue depth value is `nr_requests`, which can be found in the script.  
-The script resides in the `evaluation` directory and reuses the code used in previous hypothetical evaluations.
-
-#### with NVMe Drive 
-This experiment is conducted on actual devices and can be executed using the `varyingdof_NVMe_X.sh` script (where X is either A or B).  
-The results can be found in the result directory as `vd_NVMe-X_QD1.txt` and `vd_NVMe-X_QD1023.txt`, which show the read performance per DoF at queue depths of 1 and 1023, respectively.
-
-This experiment takes about 80 minutes per script.
-
-#### with ramdisk 
-This experiment operates by utilizing system DRAM as a device and requires approximately 30GB of ramdisk capacity.  
-`varyingdof_ramd.sh` can be used for execution. Since the ramdisk creates an additional loop device, you must enter the correct loop device number generated in your system into the script. This value is the last loop device number +1. It can be easily found through the `lsblk` command.  
-Upon completion of the experiment, the results can be found in the result directory as `vd_ramd_QD1.txt` and `vd_ramd_QD128.txt`. These show the read performance per DoF at queue depths of 1 and 128, respectively.
-
-This experiment takes about 30 minutes per script.
-
-### Interface Overhead (Figure 7) 
-This experiment observes the overhead due to fragmentation at different queue depths.  
-This experiment, measuring throughput with minimal IO, is not recommended for server-based experiments due to significant overhead from device sleep.  
-The protocol overhead of SSDs can be simply evaluated on a local machine. The evaluation consists of a single line of FIO code.  
-The operational script is `interface_NVMe.sh`. The results are recorded as FIO logs in the `interfaceresult` directory.  
-As measuring the short execution time of FIO is difficult, for queue depth 1, you should multiply the average latency by the number of IOs, and for queue depth 32, calculate the time by reverse calculating the throughput.
-Additionally, when dealing with NVMe at queue depth 32, it's important to bear in mind that the process may conclude too swiftly for FIO to capture performance accurately.  
-
-Before performing tests on SATA devices, refer to the section "Testing on SATA" below.
-
-### Alignment (Figure 8)
-Use FIO on the actual device to measure the throughput of 4 KB high queue depth while changing the alignment option from 1 to 1024 KB.
-
-Each device can be evaluated with the following script: `alignment_NVMe_X.sh` (where X is A, B, or D).  
-Results can be found in the result directory under `alignment_NVMe-X.txt`.  
-This experiment takes about 55 minutes per device.
-
-Before performing tests on SATA devices, refer to the section "Testing on SATA" below.
-
-### Pseudo Approach (Figure 11)
-This experiment is the same as the previously shared hypothetical experiment, except that the device is changed to a real NVMe.
-
-Appropriate stripe size and die granularity size values must be set for the device. The provided scripts are set to operate `NVMe-A` and `NVMe-B`.
-The execution scripts for append write and overwrite are `pseudo_append_NVMe_X.sh` and `pseudo_overwrite_NVMe_X.sh`, respectively, and the results can be summarized through `printresult_pseudo_NVMe.sh` in a similar manner to before.
-
-For experiments involving devices, it is advisable to apply a trimmed mean that excludes the maximum and minimum values from the ten read performance entries recorded in the result directory. The raw results are saved in a format like `pseudo_append_NVMe-X_off.txt`.
-
-This experiment takes about 20 minutes per script.
-
-When experimenting with other devices, conduct the "Alignment" test above to determine the 'die allocation granularity' and 'stripe size,' then accordingly adjust the parameters.
-
-These parameters and the device name are noted in `NVMeX.sh`.  
-
-Before performing tests on SATA devices, refer to the section "Testing on SATA" below.
 
 ## Testing on SATA
 All the above experiments can also be performed on SATA devices. However, the trim (secure erase) must be performed according to the SATA command interface.  
